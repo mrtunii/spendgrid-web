@@ -1,23 +1,6 @@
-import { useState } from "react";
-import { Plus, Cloud, Globe, CreditCard } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Cloud, Globe, CreditCard } from "lucide-react";
+import { Statistics } from "@/components/Statistics";
+import { ServicesList } from "@/components/ServicesList";
 
 const services = [
   {
@@ -25,9 +8,10 @@ const services = [
     name: "AWS",
     icon: Cloud,
     price: 150,
-    nextPayment: "2023-06-25",
+    nextPayment: "2023-07-01",
     description: "Cloud computing services for scalable infrastructure.",
     tags: ["Cloud", "Hosting", "Storage"],
+    categories: ["Infrastructure", "Cloud Computing"],
     alternatives: [
       {
         name: "Google Cloud",
@@ -57,6 +41,7 @@ const services = [
     nextPayment: "2023-07-05",
     description: "Comprehensive cloud platform for various applications.",
     tags: ["Cloud", "AI", "Analytics"],
+    categories: ["Infrastructure", "Cloud Computing", "AI"],
     alternatives: [
       {
         name: "AWS",
@@ -86,6 +71,7 @@ const services = [
     nextPayment: "2023-07-10",
     description: "Frontend deployment and hosting for modern web projects.",
     tags: ["Hosting", "Frontend", "Serverless"],
+    categories: ["Hosting", "Development"],
     alternatives: [
       {
         name: "Netlify",
@@ -112,9 +98,10 @@ const services = [
     name: "Stripe",
     icon: CreditCard,
     price: 100,
-    nextPayment: "2023-06-30",
+    nextPayment: "2023-06-25",
     description: "Payment processing platform for online businesses.",
     tags: ["Payments", "Finance", "API"],
+    categories: ["Finance", "API"],
     alternatives: [
       {
         name: "PayPal",
@@ -138,166 +125,21 @@ const services = [
   },
 ];
 
+// Mock statistics data
 const statistics = [
-  { label: "Total Services", value: "15" },
+  { label: "Total Services", value: 15 },
   { label: "Monthly Spend", value: "$2,500" },
   { label: "Projected Annual", value: "$30,000" },
 ];
 
-function AlternativeServiceModal({ alternative }) {
-  const IconComponent = alternative.icon;
-
-  return (
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <IconComponent className="w-6 h-6" />
-          {alternative.name}
-        </DialogTitle>
-        <DialogDescription>{alternative.description}</DialogDescription>
-      </DialogHeader>
-      <div className="mt-4">
-        <Button
-          className="w-full"
-          onClick={() => window.open(alternative.website, "_blank")}
-        >
-          Visit Website
-        </Button>
-      </div>
-    </DialogContent>
-  );
-}
-
 export default function HomePage() {
-  const [selectedMonth, setSelectedMonth] = useState("current");
-
-  const monthOptions = [
-    { value: "current", label: "This Month" },
-    { value: "previous", label: "Previous Month" },
-    { value: "2023-06", label: "June 2023" },
-    { value: "2023-05", label: "May 2023" },
-    { value: "2023-04", label: "April 2023" },
-  ];
-
-  const isPaymentSoon = (date) => {
-    const paymentDate = new Date(date);
-    const today = new Date();
-    const diffTime = paymentDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 10;
-  };
-
   return (
     <main className="flex-grow bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Services Overview</h1>
-
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {statistics.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-                  {stat.label}
-                </h3>
-                <p className="text-3xl font-bold">{stat.value}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-6">Services Overview</h1>
+          <Statistics statistics={statistics} />
+          <ServicesList services={services} />
         </div>
-
-        {/* Month filter and Add Service button */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-semibold">Services</h2>
-            <Button variant="outline" size="sm" className="h-9">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Service
-            </Button>
-          </div>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select month" />
-            </SelectTrigger>
-            <SelectContent>
-              {monthOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Services list */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {services.map((service) => (
-            <Card
-              key={service.id}
-              className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
-              onClick={() => console.log(`Clicked on ${service.name}`)}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div className="bg-primary/10 p-2 rounded-full">
-                      <service.icon className="w-8 h-8 text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">{service.name}</h2>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {service.description}
-                      </p>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {service.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">${service.price}</p>
-                    <p className="text-sm text-muted-foreground">per month</p>
-                    <Badge
-                      variant={
-                        isPaymentSoon(service.nextPayment)
-                          ? "destructive"
-                          : "outline"
-                      }
-                      className="mt-2"
-                    >
-                      Next: {service.nextPayment}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Alternatives:
-                  </p>
-                  <div className="flex space-x-2">
-                    {service.alternatives.map((alt, index) => (
-                      <Dialog key={index}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="rounded-full p-0 w-8 h-8"
-                          >
-                            <alt.icon className="w-4 h-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <AlternativeServiceModal alternative={alt} />
-                      </Dialog>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </main>
+      </main>
   );
 }
