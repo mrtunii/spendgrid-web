@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { Bell, ChevronDown, Moon, Plus, Sun, User, Menu, Settings, Home } from 'lucide-react'
+import React from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Bell, ChevronDown, Moon, Plus, Sun, User, Menu, Settings, Home, LogOut } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,11 +12,24 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from './ThemeProvider'
 import { MobileMenu } from './MobileMenu'
+import { useUser } from '../contexts/UserContext'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Header({ selectedProject, setSelectedProject, projects }) {
   const { theme, setTheme } = useTheme()
-  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false)
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = React.useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useUser()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      navigate('/login')
+    } catch (error) {
+      console.error('Error logging out:', error.message)
+    }
+  }
 
   return (
     <header className="bg-background border-b">
@@ -69,19 +82,30 @@ export function Header({ selectedProject, setSelectedProject, projects }) {
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>John Doe</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Avatar>
+                      <AvatarImage src={user.user_metadata.avatar_url} />
+                      <AvatarFallback>{user.user_metadata.full_name?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{user.user_metadata.full_name || user.email}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/login">
+                <Button>Login</Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
