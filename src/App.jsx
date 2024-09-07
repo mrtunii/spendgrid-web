@@ -12,7 +12,8 @@ import { Layout } from "./components/Layout";
 import Home from "./pages/Home";
 import { ProjectSettings } from "./pages/ProjectSettings";
 import { Login } from "./pages/Login";
-import { AuthCallback } from "@/components/AuthCallback.jsx";
+import { AuthCallback } from "./components/AuthCallback";
+import { NotFound } from "./pages/NotFound";
 import { UserProvider, useUser } from "./contexts/UserContext";
 
 // Mock data for projects
@@ -76,6 +77,7 @@ function App() {
                 }
               />
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
         </Router>
